@@ -19,7 +19,7 @@
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL ENRICO SIRAGUSA OR THE FU BERLIN BE LIABLE
+// ARE DISCLAIMED. IN NO EVENT SHALL GIANVITO URGESE OR THE FU BERLIN BE LIABLE
 // FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 // DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 // SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -83,6 +83,7 @@
 #include "option.h" //
 #include "store_seqs.h"
 #include "interaction_edges.h"
+#include "struct_align.h"
 
 using namespace seqan;
 // ----------------------------------------------------------------------------
@@ -109,20 +110,23 @@ int main(int argc, char const ** argv)
 
     _V(options, "Open the input file and fill the TRnaVect data structure");
     readRnaRecords(options, options.inFile ,rnaSeqs);
-    std::cout << "Analyse the rnaSeqs structure and check which info are required for the selected analysis" <<std::endl;
+    _V(options, "Analyse the rnaSeqs structure and check which info are required for the selected analysis");
 
 // Add the weight interaction edges vector map in the data structure
     bppInteractionGraphBuild(options, rnaSeqs);
-
+//  Create the alignment data structure that will be used to store all the alignments
+    TRnaAlignVect rnaAligns;
     if( options.inFileRef == "" )
     {
         std::cout << "fasta file name of reference is not available"
                 "create the alignment data structure on a single file" << std::endl;
-
+        alignVectorBuild(rnaAligns, rnaSeqs, options);
     } else
     {
         std::cout << "fasta file name is " << options.inFileRef << std::endl; //FIXME if input file is not provided the program is stack
         readRnaRecords(options, options.inFileRef, rnaSeqsRef);
+        bppInteractionGraphBuild(options, rnaSeqsRef);
+        alignVectorBuild(rnaAligns, rnaSeqs, rnaSeqsRef, options);
     }
     return 0;
 }

@@ -31,95 +31,82 @@
 // ==========================================================================
 // Author: Gianvito Urgese <gianvito.urgese@polito.it>
 // ==========================================================================
-// This file contains the
+// This file contains
 // ==========================================================================
-
-#ifndef _INCLUDE_VIENNA_RNA_H_
-#define _INCLUDE_VIENNA_RNA_H_
+#ifndef _INCLUDE_STRUCT_ALIGN_H_
+#define _INCLUDE_STRUCT_ALIGN_H_
 
 // ----------------------------------------------------------------------------
-// Vienna headers
+// App headers
 // ----------------------------------------------------------------------------
 
-extern "C" {
-    #include  <ViennaRNA/data_structures.h>
-    #include  <ViennaRNA/params.h>
-    #include  <ViennaRNA/utils.h>
-    #include  <ViennaRNA/eval.h>
-    #include  <ViennaRNA/fold.h>
-    #include  <ViennaRNA/part_func.h>
-    #include <ViennaRNA/PS_dot.h>
-}
+//#include "vienna_rna.h"
 
 // ============================================================================
 // Functions
 // ============================================================================
 
 // ----------------------------------------------------------------------------
-// Function computeBppMatrix()
+// Function alignVectorBuild()
 // ----------------------------------------------------------------------------
-
-template <typename TOption, typename TRnaStruct>
-void computeBppMatrix(TOption const & options, TRnaStruct & rnaSeq)
+// Used to generate the alignments from a single input file
+template <typename TRnaAligns, typename TRnaSeqs, typename TOption>
+void alignVectorBuild(TRnaAligns & rnaAligns, TRnaSeqs const & rnaSeqs,
+                      TOption const & options)
 {
-    std::cout << length(rnaSeq.seq) << " " << rnaSeq.seq << std::endl;
-    char *structure = new char[length(rnaSeq.seq) + 1];
-    vrna_md_t md_p;
-
-//  apply default model details
-    set_model_details(&md_p);
-
-    // Create a c-style string object for str:
-    String<char, CStyle> seq;
-
-    seq = rnaSeq.seq;
-//  get a vrna_fold_compound with MFE and PF DP matrices and default model details
-    vrna_fold_compound_t *vc = vrna_fold_compound(toCString(seq), &md_p, VRNA_OPTION_MFE | VRNA_OPTION_PF);
-    double gibbs = (double)vrna_pf(vc, structure); //FIXME the structure is not well saved
-
-    vrna_plist_t *pl1, *ptr;
-    pl1 = vrna_plist_from_probs(vc, options.thrBppm);
-/*
-    if(options.verbose>1)
-    {
-        vrna_plist_t *pl2;
-        pl2= vrna_plist(structure, 0.95*0.95);
-//	Function used to plot the dot_plot graph
-        (void) PS_dot_plot_list(toCString(seq), "prova_dot_plot", pl1, pl2, "");
+    for (unsigned i = 0; i < length(rnaSeqs) - 1; ++i) {
+        TRnaAlign rnaAlign;
+        for (unsigned j = i + 1; j < length(rnaSeqs); ++j) {
+            if (length(rnaSeqs[i].seq) <
+                length(rnaSeqs[j].seq)) // in this way the alignment map structure will be always created with the maximum size
+            {
+                rnaAlign.rna1 = rnaSeqs[j];
+                rnaAlign.rna2 = rnaSeqs[i];
+            } else {
+                rnaAlign.rna1 = rnaSeqs[i];
+                rnaAlign.rna2 = rnaSeqs[j];
+            }
+            if(options.verbose > 2)
+            {
+                std::cout << rnaAlign.rna1.seq << std::endl;
+                std::cout << rnaAlign.rna2.seq << std::endl;
+            }
+            rnaAligns.push_back(rnaAlign);
+        }
     }
-*/
-// get size of pl1
-    unsigned size;
-    for(size = 0, ptr = pl1; ptr->i; size++, ptr++);
-
-    std::cout << "BPPM2 => " << size  << std::endl;
-    std::cout << "BPPM2 => " << std::endl;
-
-    std::cout << "size seq = " << length(rnaSeq.seq) << std::endl;
-// std::cout << "size graph = " << length(interGraph) << std::endl;
-// std::cout << interGraph << std::endl;
-
-    for(unsigned i=0; i<length(rnaSeq.seq);++i)
-    {
-        addVertex(rnaSeq.graph);
-    }
-    for(unsigned i=0; i<size;++i)
-    {
-        if(options.verbose > 2)
-            std::cout << i << "_"<< pl1[i].i <<":"<< pl1[i].j <<"|"<< pl1[i].p <<"|"<< pl1[i].type << "\t";
-        addEdge(rnaSeq.graph, pl1[i].i, pl1[i].j, pl1[i].p);
-    }
-    if(options.verbose > 2)
-        std::cout << "\n" << rnaSeq.graph << std::endl;
-
-
-    std::cout << rnaSeq.seq << std::endl;
-    std::cout << structure << "\tgibbs = " << gibbs << std::endl;
-
-//	free memory occupied by vrna_fold_compound
-    vrna_fold_compound_free(vc);
-//	clean up
-    free(structure);
 }
 
-#endif //_INCLUDE_VIENNA_RNA_H_
+
+// ----------------------------------------------------------------------------
+// Function alignVectorBuild()
+// ----------------------------------------------------------------------------
+// Used to generate the alignments from two different input files
+template <typename TRnaAligns, typename TRnaSeqs, typename TOption>
+void alignVectorBuild(TRnaAligns & rnaAligns, TRnaSeqs const & rnaSeqs,
+                      TRnaSeqs const & rnaSeqsRef, TOption const & options)
+{
+    for(unsigned i=0;i<length(rnaSeqs); ++i)
+    {
+        TRnaAlign rnaAlign;
+        for(unsigned j=0;j<length(rnaSeqsRef); ++j)
+        {
+            if(length(rnaSeqs[i].seq) < length(rnaSeqsRef[j].seq)) // in this way the alignment map structure will be always created with the maximum size
+            {
+                rnaAlign.rna1 = rnaSeqsRef[j];
+                rnaAlign.rna2 = rnaSeqs[i];
+            }else {
+                rnaAlign.rna1 = rnaSeqs[i];
+                rnaAlign.rna2 = rnaSeqsRef[j];
+            }
+            if(options.verbose > 2)
+            {
+                std::cout << rnaAlign.rna1.seq << std::endl;
+                std::cout << rnaAlign.rna2.seq << std::endl;
+            }
+        }
+        rnaAligns.push_back(rnaAlign);
+    }
+}
+
+
+#endif //_INCLUDE_STRUCT_ALIGN_H_

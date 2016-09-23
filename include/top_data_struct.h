@@ -43,6 +43,7 @@
 // ----------------------------------------------------------------------------
 
 //#include <seqan/rna_io.h>
+//#include <seqan/align_rna.h>
 
 // ============================================================================
 // Prerequisites
@@ -89,12 +90,14 @@ typedef EdgeDescriptor<TDgraph>::Type TDEdgeDescriptor;
 typedef Graph<Undirected<TCargo> > TUgraph;
 typedef VertexDescriptor<TUgraph>::Type TUVertexDescriptor;
 typedef EdgeDescriptor<TUgraph>::Type TUEdgeDescriptor;
+*/
 
-typedef Map<TPosition, TDVertexDescriptor> TMapDGraph;
-typedef seqan::String<TMapDGraph > TMapDGraphStr;
-typedef Map<TPosition, TUVertexDescriptor> TMapUGraph;
-typedef seqan::String<TMapUGraph > TMapUGraphStr;
+//typedef Map<TPosition, TDVertexDescriptor> TMapDGraph;
+//typedef seqan::String<TMapDGraph > TMapDGraphStr;
 
+//typedef Map<TPosition, TUVertexDescriptor> TMapUGraph;
+//typedef seqan::String<TMapUGraph > TMapUGraphStr;
+/*
 template <typename TString, typename TPosition>
 struct fixedStructElement {
     TString method; // place the method and parameters used to compute the structure
@@ -132,6 +135,15 @@ typedef RnaStructSeq<TSequence, TString, TPosition, TBioval, TMapLine> TRnaStruc
 //typedef std::vector<TRnaStruct > TRnaVect;
 typedef std::vector<seqan::RnaRecord > TRnaVect;
 
+struct RnaStructAlign
+{
+//public:
+    seqan::RnaRecord rna1;
+    seqan::RnaRecord rna2;
+};// rnaStructAlign;
+
+typedef RnaStructAlign TRnaAlign;
+typedef std::vector<TRnaAlign> TRnaAlignVect;
 
 
 #endif //_INCLUDE_TOP_DATA_STRUCT_H_
