@@ -103,7 +103,14 @@ char const * FileExtensions<DotBracket, T>::VALUE[3] =
 // Metafunction DotBracketArgs
 // ----------------------------------------------------------------------------
 template <typename T = void>
-struct DotBracketArgs
+struct DotBracketArgs //FIXME this notation does not works for the vienna output that is
+// pseudoknot free http://rna.tbi.univie.ac.at/help.html
+// "If partition function folding was selected, an ensemble structure depicting the base pair probabilities
+// summarized by pseudo bracket notation with the additional symbols ',', '|', '{', '}' is shown on the results
+// page too. Here, the usual '(', ')', '.', represent bases with a strong preference (more than 2/3) to pair upstream
+// (with a partner further 3'), pair down-stream, or not pair, respectively. '{', '}', and ',' are just weaker version
+// of the above and '|' represents a base that is mostly paired but has pairing partners both upstream and downstream.
+// In this case open and closed brackets need not match up."
 {
     constexpr static std::array<char, 30> const OPEN = {{
         '(', '{', '<', '[', 'A', 'B', 'C', 'D', 'E', 'F',

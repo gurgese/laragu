@@ -52,6 +52,23 @@ typedef typename Iterator<TRnaRecordGraph, AdjacencyIterator>::Type TRnaAdjacenc
 // ============================================================================
 
 // ----------------------------------------------------------------------------
+// Class RnaInterGraph
+// ----------------------------------------------------------------------------
+
+    class RnaInterGraph {
+    public:
+        // Specs of the Method used to compute the bpp matrix or the structure
+        CharString specs;
+        // graph storing the weight of the RNA structure interactions
+        TRnaRecordGraph inter;
+        bool isInjective; // each base has at most 1 connection
+        // Default constructor.
+        RnaInterGraph() :
+                specs("")
+        {}
+    };
+
+// ----------------------------------------------------------------------------
 // Class RnaRecord
 // ----------------------------------------------------------------------------
 
@@ -84,7 +101,18 @@ public:
 
     // Undirected graph for base pairings
     // vertices: sequence/alignment column index, edges: base pair with assigned probability
-    TRnaRecordGraph graph;
+    TRnaRecordGraph graph; //TODO the usage of this field must be substituted with the "bpp_matr_graphs" field
+    // able to associate the method specs used to compute the structures
+
+    // Vector of base pair probability graphs extracted from the input files
+    String<RnaInterGraph > bpp_matr_graphs;
+    // Vector of fixed structure graphs extracted from the input files
+    String<RnaInterGraph > fixed_graphs;
+
+    // Base pair probability graph for the storage of the computed graph that will be used during the alignment
+    RnaInterGraph bpp_matr_graph;
+    // Fixed structure graph for the storage of the computed graph that will be used during the alignment
+    RnaInterGraph fixed_graph;
 
     bool isInjective; // each base has at most 1 connection
 

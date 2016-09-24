@@ -78,16 +78,14 @@ void bppInteractionGraphBuild(TOption const & options, TVect  & rnaSeqs)
 //TODO once is given support to introduce several BPP from the extended bpseq
 // file or from the dot plot file in this position must be placed a condition
 // capable to discriminate which bpp matrix to use
-        if(length(rnaSeqs[i].graph.data_vertex) == NULL) // if(dotplot or extended bpseq data are not present)
+        if(length(rnaSeqs[i].bpp_matr_graphs) == 0) // if(dotplot or extended bpseq data are not present)
         {
-//			computeBppMatrix(options, toCString(cStr), write_dot_plot, rnaSeqs[i].bpProb.interGraph, rnaSeqs[i].bpProb.uVertexVect);
             computeBppMatrix(options, rnaSeqs[i]);
-            //		createRnaBppGraph(rnaSeqs[i], length(rnaSeqs[i].seq));
         }else{
-// TODO read the BPP matrix from the files
+// TODO read the BPP matrix from the rnaSeqs[i].bpp_matr_graphs field that contains all the structures acquired by the files
+// TODO add the filtering step that involve the biological input and the majority voter of predicted structures
         }
 /*
-// TODO add the filtering step that involve the biological input and the majority voter of predicted structures
 
         std::cout << "Input Degree nodo 0 = " << inDegree(rnaSeqs[i].bpProb.interGraph, rnaSeqs[i].bpProb.uVertexVect[0]) << std::endl;
         std::cout << "Output Degree nodo 0 = " << outDegree(rnaSeqs[i].bpProb.interGraph, rnaSeqs[i].bpProb.uVertexVect[0]) << std::endl;

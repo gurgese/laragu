@@ -128,6 +128,7 @@ int main(int argc, char const ** argv)
         bppInteractionGraphBuild(options, rnaSeqsRef);
         alignVectorBuild(rnaAligns, rnaSeqs, rnaSeqsRef, options);
     }
+    std::cout << rnaSeqs[0].bpp_matr_graph.inter << std:: endl;
     return 0;
 }
 

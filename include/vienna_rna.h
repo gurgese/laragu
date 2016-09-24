@@ -91,34 +91,30 @@ void computeBppMatrix(TOption const & options, TRnaStruct & rnaSeq)
 // get size of pl1
     unsigned size;
     for(size = 0, ptr = pl1; ptr->i; size++, ptr++);
-
-    std::cout << "BPPM2 => " << size  << std::endl;
-    std::cout << "BPPM2 => " << std::endl;
-
-    std::cout << "size seq = " << length(rnaSeq.seq) << std::endl;
-// std::cout << "size graph = " << length(interGraph) << std::endl;
-// std::cout << interGraph << std::endl;
-
+    rnaSeq.bpp_matr_graph.specs += "vrna_fold_compound(toCString(seq), &md_p, VRNA_OPTION_MFE | VRNA_OPTION_PF)"; //TODO this data must be formatted in a smart way
     for(unsigned i=0; i<length(rnaSeq.seq);++i)
     {
-        addVertex(rnaSeq.graph);
+        addVertex(rnaSeq.bpp_matr_graph.inter);
     }
     for(unsigned i=0; i<size;++i)
     {
         if(options.verbose > 2)
             std::cout << i << "_"<< pl1[i].i <<":"<< pl1[i].j <<"|"<< pl1[i].p <<"|"<< pl1[i].type << "\t";
-        addEdge(rnaSeq.graph, pl1[i].i, pl1[i].j, pl1[i].p);
+        addEdge(rnaSeq.bpp_matr_graph.inter, pl1[i].i, pl1[i].j, pl1[i].p);
     }
+    if(options.verbose > 2)
+    {
+        std::cout << rnaSeq.seq << std::endl;
+        std::cout << structure << "\tgibbs = " << gibbs << std::endl;
+    }
+    rnaSeq.fixed_graph.specs += "vrna_fold_compound(toCString(seq), &md_p, VRNA_OPTION_MFE | VRNA_OPTION_PF)"; //TODO this data must be formatted in a smart way
+//    bracket2graph(rnaSeq.fixed_graph.inter, structure); //FIXME the vienna representation should be supported before to use this piece of code
     if(options.verbose > 2)
         std::cout << "\n" << rnaSeq.graph << std::endl;
 
-
-    std::cout << rnaSeq.seq << std::endl;
-    std::cout << structure << "\tgibbs = " << gibbs << std::endl;
-
-//	free memory occupied by vrna_fold_compound
+// free memory occupied by vrna_fold_compound
     vrna_fold_compound_free(vc);
-//	clean up
+// clean up
     free(structure);
 }
 
