@@ -76,7 +76,6 @@ void alignVectorBuild(TRnaAligns & rnaAligns, TRnaSeqs const & rnaSeqs,
     }
 }
 
-
 // ----------------------------------------------------------------------------
 // Function alignVectorBuild()
 // ----------------------------------------------------------------------------
@@ -105,6 +104,82 @@ void alignVectorBuild(TRnaAligns & rnaAligns, TRnaSeqs const & rnaSeqs,
             }
         }
         rnaAligns.push_back(rnaAlign);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Function setScoreMatrix()
+// ----------------------------------------------------------------------------
+
+template <typename TOptions>
+void setScoreMatrix(TOptions & options)
+{
+    options.laraScoreMatrix.data_gap_extend=options.laraGapExtend;
+    options.laraScoreMatrix.data_gap_open=options.laraGapOpen;
+    if(options.laraScoreMatrixName != "")
+    {
+        loadScoreMatrix(options.laraScoreMatrix, toCString(getAbsolutePath(toCString(options.laraScoreMatrixName))));
+        _V(options, "Provided scoring matrix will be used");
+        showScoringMatrix(options.laraScoreMatrix);
+    }
+    else
+    {
+        _V(options, "Predefined RIBOSUM matrix will be used");
+        setDefaultScoreMatrix(options.laraScoreMatrix, TRibosum());
+        showScoringMatrix(options.laraScoreMatrix);
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Function firstSimdAlignsGlobalLocal()
+// ----------------------------------------------------------------------------
+
+template <typename TResultsSimd, typename TAlignsSimd, typename TOptions>
+void firstSimdAlignsGlobalLocal(TResultsSimd & resultsSimd, TAlignsSimd & alignsSimd, TOptions const & options)
+{
+    if (!options.globalLocal)  //TODO implement the global-unconstrained alignment using the parameters in the options
+    {
+        if (options.affineLinearDgs == 0)
+            resultsSimd = globalAlignment(alignsSimd, options.laraScoreMatrix, AffineGaps());
+        else if (options.affineLinearDgs == 1)
+            resultsSimd = globalAlignment(alignsSimd, options.laraScoreMatrix, LinearGaps());
+        else
+            resultsSimd = globalAlignment(alignsSimd, options.laraScoreMatrix, DynamicGaps());
+
+    } else
+    {
+        if (options.affineLinearDgs == 0)
+            resultsSimd = localAlignment(alignsSimd, options.laraScoreMatrix, AffineGaps());
+        else if (options.affineLinearDgs == 1)
+            resultsSimd = localAlignment(alignsSimd, options.laraScoreMatrix, LinearGaps());
+        else
+            resultsSimd = localAlignment(alignsSimd, options.laraScoreMatrix, DynamicGaps());
+    }
+};
+
+// ----------------------------------------------------------------------------
+// Function firstSimdAligns()
+// ----------------------------------------------------------------------------
+
+template <typename TResultsSimd, typename TAlignsSimd, typename TRnaAlignVect, typename TOptions>
+void firstSimdAligns(TResultsSimd & resultsSimd, TAlignsSimd & alignsSimd, TRnaAlignVect & rnaAligns, TOptions const & options)
+{
+    for(unsigned i = 0; i < length(rnaAligns); ++i)
+    {
+        TAlign align;
+        resize(rows(align), 2);
+        assignSource(row(align, 0), rnaAligns[i].rna1.seq);
+        assignSource(row(align, 1), rnaAligns[i].rna2.seq);
+        appendValue(alignsSimd, align);
+    }
+    firstSimdAlignsGlobalLocal(resultsSimd, alignsSimd, options);
+    if (options.verbose > 2)
+    {
+        for(unsigned i = 0; i < length(rnaAligns); ++i)
+        {
+            std::cout << alignsSimd[i];
+            std::cout << resultsSimd[i] << std::endl;
+        }
     }
 }
 

@@ -100,7 +100,9 @@ struct Options
 // my, necessary for computing appropriate step sizes
     double my; //FIXME to be changed the name
 // scoring matrix name that should be used for scoring alignment edges in the actual problem
-    seqan::CharString laraScoreMatrix;
+    seqan::CharString laraScoreMatrixName;
+    Score<double, ScoreMatrix<Rna5, Default> > laraScoreMatrix;
+//    TScoringSchemeRib laraScoreMatrixRib;
 // Gap open and extend costs for generating the alignment edges
     double generatorGapOpen;
     double generatorGapExtend;
@@ -146,12 +148,12 @@ struct Options
             iterations(500),
             nonDecreasingIterations(50),
             my(1.0),
-            laraScoreMatrix("RIBOSUM65"),
+            laraScoreMatrixName(""), //laraScoreMatrixName("RIBOSUM65"),
             generatorGapOpen(6.0),
             generatorGapExtend(2.0),
             generatorSuboptimality(40),
-            laraGapOpen(12.0),
-            laraGapExtend(5.0),
+            laraGapOpen(-12.0),
+            laraGapExtend(-5.0),
             sequenceScale(1.0),
             rsaGapPenalty(3.0),
             structureScoring("LOGARITHMIC"),
@@ -211,7 +213,9 @@ void setupArgumentParser(ArgumentParser & parser, TOption const & /* options */)
                                      ArgParseArgument::INTEGER, "INT"));
     addOption(parser, ArgParseOption("my", "my", "necessary for computing appropriate step sizes.",
                                      ArgParseArgument::DOUBLE, "DOUBLE"));
-    addOption(parser, ArgParseOption("lsm","laraScoreMatrix","scoring matrix name that should be used for scoring alignment edges in the actual problem"));
+    addOption(parser, ArgParseOption("lsm","laraScoreMatrixName",
+                                     "scoring matrix name that should be used for scoring alignment edges in the actual problem",
+                                     ArgParseOption::STRING));
     addOption(parser, ArgParseOption("ggo", "generatorGapOpen",
                                      "Gap open costs for generating the alignment edges.",
                                      ArgParseArgument::DOUBLE, "DOUBLE"));
@@ -291,7 +295,7 @@ ArgumentParser::ParseResult parse(TOption & options, ArgumentParser & parser, in
     getOptionValue(options.iterations, parser, "iterations");
     getOptionValue(options.nonDecreasingIterations, parser, "nonDecreasingIterations");
     getOptionValue(options.my, parser, "my");
-    getOptionValue(options.laraScoreMatrix, parser, "laraScoreMatrix");
+    getOptionValue(options.laraScoreMatrixName, parser, "laraScoreMatrixName");
     getOptionValue(options.generatorGapOpen, parser, "generatorGapOpen");
     getOptionValue(options.generatorGapExtend, parser, "generatorGapExtend");
     getOptionValue(options.generatorSuboptimality, parser, "generatorSuboptimality");
@@ -327,6 +331,8 @@ ArgumentParser::ParseResult parse(TOption & options, ArgumentParser & parser, in
     setEnv("TMPDIR", tmpDir);
     _V(options, "The absolute path where to create the tmpDir is " << tmpDir);
     _V(options, "Initialized the Options structure");
+    setScoreMatrix(options);
+//    showScoringMatrix(options.laraScoreMatrix);
     return ArgumentParser::PARSE_OK;
 }
 

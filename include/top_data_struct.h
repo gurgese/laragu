@@ -73,11 +73,12 @@
 // Types used in the program
 // ============================================================================
 
-typedef seqan::RnaString TSequence;
+typedef seqan::Rna5String TSequence;
 typedef seqan::Align<TSequence, seqan::ArrayGaps> TAlign;      // align type
 typedef unsigned TPosition;
-typedef float TScoreValue;
+typedef double TScoreValue;
 typedef seqan::CharString TString;
+typedef seqan::Ribosum65N TRibosum;
 typedef float TBioval;
 typedef std::map<TPosition, TScoreValue> TMap;
 typedef seqan::String<TMap > TMapLine;
@@ -138,8 +139,13 @@ typedef std::vector<seqan::RnaRecord > TRnaVect;
 struct RnaStructAlign
 {
 //public:
-    seqan::RnaRecord rna1;
+    seqan::RnaRecord rna1; // If we have problems with the memory the index of the TRnaVect can instead saved
     seqan::RnaRecord rna2;
+// The best computed alignment is saved in these fields
+    TAlign bestAlign;
+    TScoreValue bestAlignScore;
+// String with size seq1 storing all the aligned lines
+    TMapLine mapLine;
 };// rnaStructAlign;
 
 typedef RnaStructAlign TRnaAlign;

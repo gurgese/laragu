@@ -64,7 +64,7 @@
 #include <seqan/align.h>
 //#include <seqan/graph_align.h>
 //#include <seqan/align_profile.h>
-//#include <seqan/align_rna.h>
+#include <seqan/align_rna.h>
 //#include <seqan/vcf_io.h>
 //#include <seqan/bpseq_io.h>
 #include <seqan/graph_types.h>
@@ -128,7 +128,11 @@ int main(int argc, char const ** argv)
         bppInteractionGraphBuild(options, rnaSeqsRef);
         alignVectorBuild(rnaAligns, rnaSeqs, rnaSeqsRef, options);
     }
-    std::cout << rnaSeqs[0].bpp_matr_graph.inter << std:: endl;
+    if(options.verbose > 2)
+        std::cout << rnaSeqs[0].bpp_matr_graph.inter << std:: endl;
+    StringSet<TAlign> alignsSimd;
+    String<TScoreValue> resultsSimd;
+    firstSimdAligns(resultsSimd, alignsSimd, rnaAligns, options);
     return 0;
 }
 
